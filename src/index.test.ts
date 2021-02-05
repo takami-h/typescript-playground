@@ -1,4 +1,3 @@
-import { time } from 'console';
 import { sum } from './index';
 
 describe('index', () => {
@@ -65,6 +64,122 @@ describe('index', () => {
         for (let i = 0; i < n; i++) f(i);
       }
       times(i => console.info(i), 5);
+    });
+    it('with generics', () => {
+      type Filter = {
+        <T>(array: T[], f: (item: T) => boolean): T[]
+      };
+      const filter: Filter = (array, f) => {
+        return array.filter(f);
+      };
+      expect(filter([1, 2, 3], _ => _ < 3)).toStrictEqual([1, 2]);
+      expect(filter(['hello', 'world', '!'], _ => _.length <= 4)).toStrictEqual(['!']);
+      expect(filter([{name: 'john doe'}, {name: 'taro yamada'}], _ => _.name.length <= 8)).toStrictEqual([{name: 'john doe'}]);
+
+    });
+  });
+  describe('class and interface', () => {
+    it('can be used.', () => {
+      class Set {
+        add(value: number): this {
+          return this;
+        }
+      }
+      class MutableSet extends Set {
+      }
+      let a = new MutableSet();
+      a = a.add(1);
+  
+      interface Sushi {
+        calories: number
+        salty: boolean
+        tasty: boolean
+        price(): number
+      }
+      let toro: Sushi = {
+        calories: 200,
+        salty: true,
+        tasty: true,
+        price() { return 300; }
+      };
+      class Gunkan implements Sushi {
+        calories = 100;
+        salty = false;
+        tasty = true;
+        price() {
+          return 100;
+        }
+      }
+
+      type Options = {
+        baseURL: string
+        cacheSize?: number
+        tier?: 'prod' | 'dev'
+      }
+      // const opts: Options = {
+      //   baseURL: 'https://example.com',
+      //   foo: 'prod'
+      // };
+
+      // tagged type
+      type UserTextEvent = {type: 'TextEvent', value: string}
+      type UserMouseEvent = {type: 'MouseEvent', value: [number, number]}
+      type UserEvent = UserTextEvent | UserMouseEvent
+      function handle(event: UserEvent) {
+        if (event.type === 'TextEvent') {
+          event.value
+        } else {
+          event.value[1];
+        }
+      }
+
+      type APIResponse = {
+        user: {
+          userId: string
+          friendList: {
+            count: number
+            friends: {
+              firstName: string
+              lastName: String
+            }[]
+          }
+        }
+      };
+      // lookup type
+      type FriendList = APIResponse['user']['friendList']
+      // keyof operator
+      type UserKeys = keyof APIResponse['user']
+      let friends: FriendList = {
+        count: 2,
+        friends: [
+          {firstName: 'John', lastName: 'Doe'},
+          {firstName: 'Taro', lastName: 'Yamada'},
+        ]
+      };
+
+      // record type
+      type Weekday = 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri'
+      type Day = Weekday | 'Sat' | 'Sun'
+      // let nextDay: Record<Weekday, Day> = {
+      //   Mon: 'Tue',
+      //   Tue: 'Wed',
+      // }
+      // map type
+      // let nextDay: {[K in Weekday]: Day} = {
+      //   Mon: 'Tue'
+      // }
+
+      // user-defined type guard
+      function isString(a: unknown): a is string {
+        return typeof a === 'string'
+      }
+      function parseInput(input: string | number) {
+        let formattedInput: string
+        if (isString(input)) {
+          formattedInput = input.toUpperCase();
+        }
+      }
+
     });
   });
 });
